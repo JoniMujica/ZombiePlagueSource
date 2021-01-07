@@ -674,7 +674,6 @@ public Action:InfectCountdown(Handle:timer)
         InfectStopCountdown();
         return Plugin_Stop;
     }
-
     // Read the info from the datapack.
     ResetPack(hInfectCountdownData);
     new Float:length = ReadPackFloat(hInfectCountdownData);
@@ -687,8 +686,33 @@ public Action:InfectCountdown(Handle:timer)
         return Plugin_Stop;
     }
 
+    new counter_int = RoundToNearest(length - counter);
+    char sounddir[128];
+    Format(sounddir, 128, "sound/zp/countdown/%i.mp3", counter_int);
+
+    if(FileExists(sounddir))
+    {
+		ReplaceString(sounddir, 128, "sound/", "");
+
+		if(g_Game == Game_CSGO) EmitSoundToAllAny(sounddir);
+		else EmitSoundToAll(sounddir);
+    }
+
+    // decl String:message[256];
+    // Format(message, sizeof(message), "%T", "Infect countdown", counter_int);
+    //new contador = counter_int;
+    new Handle:HudCountdown = CreateHudSynchronizer();
+    SetHudTextParams(0.3,0.25,1.0, 0, 246, 120, 1);
+
     // Print the countdown text to the clients.
-    TranslationPrintCenterTextAll(false, "Infect countdown", RoundToNearest(length - counter));
+    //TranslationPrintCenterTextAll(false, "Infect countdown", RoundToNearest(length - counter));
+
+    for(new i = 1;i<= MaxClients; i++){
+        if(IsClientInGame(i)){
+            ShowSyncHudText(i,HudCountdown,"Primera infeccion en %i segundos", counter_int);
+            // contador--;
+        }
+    }
 
     counter++;
 
@@ -700,6 +724,25 @@ public Action:InfectCountdown(Handle:timer)
     return Plugin_Continue;
 }
 
+
+CountDown()
+{
+	int count = 1;
+	char sounddir[128];
+	Format(sounddir, 128, "sound/zp/countdown/%i.mp3", count);
+
+	while(FileExists(sounddir))
+	{
+		AddFileToDownloadsTable(sounddir);
+		ReplaceString(sounddir, 128, "sound/", "");
+
+		if(g_Game != Game_CSGO) PrecacheSound(sounddir);
+		else PrecacheSoundAny(sounddir);
+
+		count++;
+		Format(sounddir, 128, "sound/zp/countdown/%i.mp3", count);
+    }
+}
 /**
  * Stops the infection countdown timer.
  */
@@ -838,6 +881,7 @@ InfectHumanToZombie(client, attacker = -1, bool:motherinfect = false, bool:respa
     APIOnClientInfected(client, attacker, motherinfect, respawnoverride, respawn);
     ImmunityOnClientInfected(client);
     ZSpawnOnClientInfected(client);
+    Fade(client, 100, 300, FFADE_IN|FFADE_PURGE, 255, 0, 0, 100);
 }
 
 /**
@@ -901,6 +945,7 @@ InfectZombieToHuman(client, bool:respawn = false, bool:protect = false)
 
     // Forward event to modules.
     SEffectsOnClientHuman(client);
+    Fade(client, 100, 300, FFADE_IN|FFADE_PURGE, 0, 0, 255, 100);
     APIOnClientHumanPost(client, respawn, protect);
     ImmunityOnClientHuman(client);
     ZSpawnOnClientHuman(client);
@@ -1552,4 +1597,20 @@ InfectUnglitchKevlar(client)
     // are getting damaged in the head hitgroup, >mfw source engine.
     // Thanks to leaked 2007 Source Engine Code.
     SetEntData(client, 4444, 0, 4);
+}
+
+stock Fade(client, hold, length, type, r, g, b, a)
+{
+	new Handle:fade = StartMessageOne("Fade", client);
+	if (fade !=INVALID_HANDLE)
+	{
+		BfWriteShort(fade, length);	// FIXED 16 bit, with SCREENFADE_FRACBITS fractional, milliseconds duration
+		BfWriteShort(fade, hold);	// FIXED 16 bit, with SCREENFADE_FRACBITS fractional, milliseconds duration until reset (fade & hold)
+		BfWriteShort(fade, type); // fade type (in / out) FFADE_PURGE|FFADE_IN
+		BfWriteByte(fade, r);	// fade red
+		BfWriteByte(fade, g);	// fade green
+		BfWriteByte(fade, b);	// fade blue
+		BfWriteByte(fade, a);// fade alpha
+		EndMessage();
+	}
 }

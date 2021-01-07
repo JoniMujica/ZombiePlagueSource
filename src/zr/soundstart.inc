@@ -46,12 +46,9 @@ FreezeEndSound()
     new bool:zpst = GetConVarBool(g_hCvarsList[CVAR_ZP_SOUND_START]);
 	if (++CurrPos >= Sounds_Count) CurrPos = 0;
 	decl String:SoundName[150]; GetArrayString(sound_array, CurrPos, SoundName, 150);
-	for (new i = 1; i <= MaxClients; i++)
-	{
-		if (zpst)
-		{
-			//EmitSoundToAll(SoundName);
-            EmitSoundToAll(SoundName, _, _, _, _, 0.15);
-		}
-	}
+    if (zpst)
+    {
+        //EmitSoundToAll(SoundName);
+        EmitSoundToAll(SoundName, _, _, _, _, 0.5);
+    }
 } 

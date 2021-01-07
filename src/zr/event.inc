@@ -65,7 +65,7 @@ EventHook(bool:unhook = false)
     // Hook all events used by plugin.
     HookEvent("round_start", EventRoundStart);
     HookEvent("round_freeze_end", EventRoundFreezeEnd);
-    HookEvent("round_end", EventRoundEnd);
+    HookEvent("round_end", EventRoundEnd, EventHookMode_Pre);
     HookEvent("player_team", EventPlayerTeam, EventHookMode_Pre);
     HookEvent("player_spawn", EventPlayerSpawn);
     HookEvent("player_hurt", EventPlayerHurt);
@@ -101,6 +101,9 @@ public Action:EventRoundStart(Handle:event, const String:name[], bool:dontBroadc
 
     rondanemesis = false;
     rondasurvivor = false;
+
+    human_wins = false;
+    zombie_wins = false;
 
     // Fire post round_start event.
     //CreateTimer(0.0, EventRoundStartPost);
@@ -163,6 +166,12 @@ public Action:EventRoundEnd(Handle:event, const String:name[], bool:dontBroadcas
     ImmunityOnRoundEnd();
     rondanemesis = false;
     rondasurvivor = false;
+
+    if (!dontBroadcast)
+    {
+        // return Plugin_Stop;
+        return Plugin_Stop;
+    } 
 }
 
 /**
@@ -225,6 +234,9 @@ public Action:EventPlayerSpawn(Handle:event, const String:name[], bool:dontBroad
     VolOnPlayerSpawn(index);
     ImmunityClientSpawn(index);
     PlayerSpawnZM(index);
+
+    //Fade(index, hold, length, FFADE_IN|FFADE_PURGE, red, green, blue, alpha);
+    Fade(index, 100, 300, FFADE_IN|FFADE_PURGE, 0, 0, 255, 100);
 
     // Fire post player_spawn event.
     CreateTimer(0.1, EventPlayerSpawnPost, index);

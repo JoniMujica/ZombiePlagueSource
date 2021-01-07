@@ -51,7 +51,17 @@
 /**
  * Delay between round ending and new round starting. (Normal)
  */
-#define ROUNDEND_DELAY 5.0
+#define ROUNDEND_DELAY 8.0
+
+
+#include <sdktools_sound>
+#include <sdktools_stringtables>
+new Handle:zm_g_Array;
+new Handle:hm_g_Array;
+new zm_g_Sounds_Count;
+new hm_g_Sounds_Count;
+new g_CurrPos = -1;
+new hm_g_CurrPos = -1;
 
 /**
  * Possible round end outcomes.
@@ -327,12 +337,16 @@ RoundEndTerminateRound(Float:delay, RoundEndOutcome:outcome = Restart)
         // Zombies won.
         case ZombiesWin:
         {
+            zombie_wins = true;
+            PlaySoundEnd();
             //ForceRoundWin(CS_TEAM_T);
             CS_TerminateRound(delay, CSRoundEnd_TerroristWin, false);
         }
         // Humans won.
         case HumansWin:
         {
+            human_wins = true;
+            PlaySoundEnd();
 			//ForceRoundWin(CS_TEAM_CT);
             CS_TerminateRound(delay, CSRoundEnd_CTWin, false);
         }
@@ -483,3 +497,92 @@ RoundEndOverlayStop()
         OverlaysClientSetChannelState(x, OVERLAYS_CHANNEL_ROUNDEND, true, false, false, true);
     }
 }
+
+PlSoundEnd(){
+    new Handle:dirzm = OpenDirectory("sound/zp/zwins");
+    new Handle:dirhm = OpenDirectory("sound/zp/hwins");
+	if (dirzm == INVALID_HANDLE)
+		SetFailState("No se pudo abrir el directorio \"sound/zp/zwins\"");
+    if (dirhm == INVALID_HANDLE)
+    SetFailState("No se pudo abrir el directorio \"sound/zp/hwins\"");
+
+	zm_g_Array = CreateArray(150);
+    hm_g_Array = CreateArray(150);
+	decl String:SoundName[150], FileType:type;
+    decl String:SoundNameHM[150], FileType:typeHM;
+	while (ReadDirEntry(dirzm, SoundName, 150, type))
+	{
+		if (type == FileType_File && StrContains(SoundName, ".ztmp") == -1)
+		{
+			if (StrContains(SoundName, ".mp3") > 0 || StrContains(SoundName, ".wav") > 0)
+			{
+				Format(SoundName, 150, "zp/zwins/%s", SoundName);
+                PrintToServer("PushZM desde PS: %s", SoundName);
+				PushArrayString(zm_g_Array, SoundName);
+			}
+		}
+	}
+    while (ReadDirEntry(dirhm, SoundNameHM, 150, typeHM))
+	{
+		if (type == FileType_File && StrContains(SoundNameHM, ".ztmp") == -1)
+		{
+			if (StrContains(SoundNameHM, ".mp3") > 0 || StrContains(SoundNameHM, ".wav") > 0)
+			{
+				Format(SoundNameHM, 150, "zp/hwins/%s", SoundNameHM);
+                PrintToServer("PushHM desde PS: %s", SoundNameHM);
+				PushArrayString(hm_g_Array, SoundNameHM);
+			}
+		}
+	}
+	CloseHandle(dirzm);
+    CloseHandle(dirhm);
+
+	if ((zm_g_Sounds_Count = GetArraySize(zm_g_Array)) < 1)
+		SetFailState("No hay sonidos en el directorio \"sound/zp/zwins\"");
+    if ((hm_g_Sounds_Count = GetArraySize(hm_g_Array)) < 1)
+    SetFailState("No hay sonidos en el directorio \"sound/zp/hwins\"");
+}
+
+MsSoundEnd(){
+    decl String:SoundName[150];
+    decl String:SoundNameHM[150];
+	for (new i = 0; i < zm_g_Sounds_Count; i++)
+	{
+		GetArrayString(zm_g_Array, i, SoundName, 150);
+        PrintToServer(SoundName);
+        PrecacheSound(SoundName, true);
+		Format(SoundName, 150, "sound/%s", SoundName);
+        AddFileToDownloadsTable(SoundName);
+	}
+    for (new i = 0; i < hm_g_Sounds_Count; i++)
+	{
+		GetArrayString(hm_g_Array, i, SoundNameHM, 150);
+        PrintToServer(SoundNameHM);
+        PrecacheSound(SoundNameHM, true);
+		Format(SoundNameHM, 150, "sound/%s", SoundNameHM);
+        AddFileToDownloadsTable(SoundNameHM);
+	}
+}
+PlaySoundEnd()
+{
+    new bool:zpse = GetConVarBool(g_hCvarsList[CVAR_ZP_SOUND_END]);
+    if (++g_CurrPos >= zm_g_Sounds_Count){
+        g_CurrPos = 0;
+    }
+    decl String:SoundNameZM[150];
+    GetArrayString(zm_g_Array, g_CurrPos, SoundNameZM, 150);
+    if (++hm_g_CurrPos >= hm_g_Sounds_Count){
+        hm_g_CurrPos = 0;
+    }
+    decl String:SoundNameHM[150];
+    GetArrayString(hm_g_Array, hm_g_CurrPos, SoundNameHM, 150);
+    if (zpse)
+    {
+        if(zombie_wins){
+            EmitSoundToAll(SoundNameZM, _, _, _, _, 0.5);
+        }
+        if(human_wins){
+            EmitSoundToAll(SoundNameHM, _, _, _, _, 0.5);
+        }
+    }
+} 

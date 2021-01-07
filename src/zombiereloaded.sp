@@ -34,6 +34,8 @@
 #include <zombiereloaded>
 #undef INCLUDED_BY_ZOMBIERELOADED
 
+new bool:human_wins = false;
+new bool:zombie_wins = false;
 
 new bool:rondasurvivor = false;
 new bool:rondanemesis = false;
@@ -97,6 +99,10 @@ new bool:Es_Nemesis[MAXPLAYERS+1] = {false, ...};
 #include <external/emitsoundany>
 
 #define VERSION "3.2"
+
+#define FFADE_IN 0x0001
+#define FFADE_OUT 0x0002
+#define FFADE_PURGE 0x0010
 
 // Comment this line to exclude version info command. Enable this if you have
 // the repository and HG installed (Mercurial or TortoiseHG).
@@ -236,6 +242,8 @@ public OnPluginStart()
     EventInit();
     OnPluginStartZM();
     OnPuginStartSound();
+    PlSoundEnd();
+    CountDown();
 }
 
 /**
@@ -288,6 +296,7 @@ public OnMapStart()
 
     OnMapStartZM();
     OnMapStartSound();
+    MsSoundEnd();
 
     g_beamsprite = PrecacheModel("materials/sprites/lgtning.vmt");
     g_halosprite = PrecacheModel("materials/sprites/halo01.vmt");
