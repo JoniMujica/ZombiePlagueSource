@@ -169,6 +169,8 @@ enum CvarsList
     Handle:CVAR_ZSPAWN_TIMELIMIT_ZOMBIE,
     Handle:CVAR_ZHP,
     Handle:CVAR_ZHP_DEFAULT,
+    Handle:CVAR_ZP_SOUND_END,
+    Handle:CVAR_ZP_SOUND_START,
 }
 
 /**
@@ -476,6 +478,11 @@ CvarsCreate()
     g_hCvarsList[CVAR_ZHP]                              =    CreateConVar("zr_zhp",             "1",    "Allow player to toggle real HP display as a zombie.");
     g_hCvarsList[CVAR_ZHP_DEFAULT]                      =    CreateConVar("zr_zhp_default",     "1",    "Default ZHP toggle state set on connecting player. [Dependency: zr_zhp]");
 
+    // ===========================
+    // Sound CSO (module)
+    // ==========================
+    g_hCvarsList[CVAR_ZP_SOUND_END]                      =    CreateConVar("zr_sound_end",     "1",    "Enable random sound on end round");
+    g_hCvarsList[CVAR_ZP_SOUND_START]                      =    CreateConVar("zr_sound_start",     "1",    "Enable random sound on start round");
     ZTele_OnCvarsCreate();
     SEffects_OnCvarsCreate();
 

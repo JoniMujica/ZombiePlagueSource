@@ -141,6 +141,7 @@ new bool:Es_Nemesis[MAXPLAYERS+1] = {false, ...};
 #include "zr/hitgroups"
 #include "zr/roundstart"
 #include "zr/roundend"
+#include "zr/soundstart"
 #include "zr/infect"
 #include "zr/immunityhandler"
 #include "zr/damage"
@@ -169,7 +170,7 @@ new bool:Es_Nemesis[MAXPLAYERS+1] = {false, ...};
 #include "zr/api/api"
 
 #include "plague/bomb.sp"
-#include "plague/sm_franug-ZombiePlague.sp"
+#include "plague/plague.sp"
 #include "plague/granadas.sp"
 
 new bool:g_bLate = false;
@@ -234,6 +235,7 @@ public OnPluginStart()
     WeaponsInit();
     EventInit();
     OnPluginStartZM();
+    OnPuginStartSound();
 }
 
 /**
@@ -285,6 +287,7 @@ public OnMapStart()
     SEffectsZombieLoad();
 
     OnMapStartZM();
+    OnMapStartSound();
 
     g_beamsprite = PrecacheModel("materials/sprites/lgtning.vmt");
     g_halosprite = PrecacheModel("materials/sprites/halo01.vmt");

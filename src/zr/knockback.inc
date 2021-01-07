@@ -65,6 +65,12 @@ KnockbackOnClientHurt(client, attacker, const String:weapon[], hitgroup, dmg_hea
         return;
     }
 
+    // If attacker is a nemesis, then stop.
+    if (Es_Nemesis[client])
+    {
+        return;
+    }
+
     // Get zombie knockback value.
     new Float:knockback = ClassGetKnockback(client);
 

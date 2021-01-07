@@ -45,7 +45,6 @@
 // Handles
 new Handle:cvarInterval;
 new Handle:AmmoTimer;
-new Handle:kvProps = INVALID_HANDLE;
 new Handle:g_cvJumpBoost = INVALID_HANDLE;
 new Handle:g_cvJumpMax = INVALID_HANDLE;
 new Handle:cvarInterval2;
@@ -105,7 +104,6 @@ public Plugin:myinfo =
 
 public OnPluginStartZM()
 {
-	LoadTranslations("zprop.phrases");
 	LoadTranslations ("plague.phrases");
 	// ======================================================================
 	
@@ -116,10 +114,10 @@ public OnPluginStartZM()
 	RegConsoleCmd("sm_zp", DOMenu);
 	RegConsoleCmd("sm_medic", Curarse);
 	RegConsoleCmd("sm_enfer", Curarse);
-	RegConsoleCmd("sm_viewcredits", VerCreditosClient);
-	RegConsoleCmd("sm_givecredits", Dar);
+	RegConsoleCmd("sm_ver", VerCreditosClient);
+	RegConsoleCmd("sm_dar", Dar);
 	RegAdminCmd("sm_giveme", Darme, ADMFLAG_CUSTOM2);
-	//RegConsoleCmd("sm_detonar", Bumb);
+	RegConsoleCmd("sm_detonar", Bumb);
 	RegConsoleCmd("sm_detonate", Bumb);
 	RegAdminCmd("sm_setcredits", FijarCreditos, ADMFLAG_CUSTOM2);
 	RegAdminCmd("sm_nemesis", NemesisA, ADMFLAG_CUSTOM2);
@@ -127,7 +125,7 @@ public OnPluginStartZM()
 	RegAdminCmd("sm_survivor", SurvivorA, ADMFLAG_CUSTOM2);
 	RegAdminCmd("sm_noprops", NoProps, ADMFLAG_CUSTOM1);
 
-	RegAdminCmd("sm_municionall", municionall, ADMFLAG_CUSTOM2);
+	RegAdminCmd("sm_ma", municionall, ADMFLAG_CUSTOM2);
 	
 	// ======================================================================
 	
@@ -333,19 +331,6 @@ public OnMapStartZM()
 	new Float:interval3 = GetConVarFloat(cvarInterval3);
 	AmmoTimer3 = CreateTimer(interval3, ResetAmmo3, _, TIMER_REPEAT);
 
-	if (kvProps != INVALID_HANDLE)
-	CloseHandle(kvProps);
-	
-	kvProps = CreateKeyValues("zprops");
-	
-	decl String:path[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, path, sizeof(path), "configs/zprops.txt");
-	
-	if (!FileToKeyValues(kvProps, path))
-	{
-		SetFailState("\"%s\" missing from server", path);
-	
-	}
 	OnMapStart20();
 	OnMapStart2();
 	OnMapStartbomba();
