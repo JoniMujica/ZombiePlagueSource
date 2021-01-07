@@ -97,6 +97,11 @@ public Action:EventRoundStart(Handle:event, const String:name[], bool:dontBroadc
     VolOnRoundStart();
     ZTeleOnRoundStart();
 
+    Event_RoundStartZM();
+
+    rondanemesis = false;
+    rondasurvivor = false;
+
     // Fire post round_start event.
     //CreateTimer(0.0, EventRoundStartPost);
 }
@@ -155,6 +160,8 @@ public Action:EventRoundEnd(Handle:event, const String:name[], bool:dontBroadcas
     ZSpawnOnRoundEnd();
     VolOnRoundEnd();
     ImmunityOnRoundEnd();
+    rondanemesis = false;
+    rondasurvivor = false;
 }
 
 /**
@@ -216,6 +223,7 @@ public Action:EventPlayerSpawn(Handle:event, const String:name[], bool:dontBroad
     ZHPOnClientSpawn(index);
     VolOnPlayerSpawn(index);
     ImmunityClientSpawn(index);
+    PlayerSpawnZM(index);
 
     // Fire post player_spawn event.
     CreateTimer(0.1, EventPlayerSpawnPost, index);
@@ -271,6 +279,10 @@ public Action:EventPlayerHurt(Handle:event, const String:name[], bool:dontBroadc
     KnockbackOnClientHurt(index, attacker, weapon, hitgroup, dmg_health);
     NapalmOnClientHurt(index, attacker, weapon);
     ZHPOnClientHurt(index);
+
+    Event_hurtZM(attacker);
+    //Event_hurtZM2(index, attacker, weapon);
+    Event_hurtZMGranadas(index, attacker, weapon);
 }
 
 /**
@@ -305,6 +317,8 @@ public Action:EventPlayerDeath(Handle:event, const String:name[], bool:dontBroad
         return;
     }
 
+    PlayerDeathZM(attacker, index);
+
     // Forward event to modules.
     ClassOnClientDeath(index);
     InfectOnClientDeath(index, attacker);
@@ -333,6 +347,7 @@ public Action:EventPlayerJump(Handle:event, const String:name[], bool:dontBroadc
 {
     // Get all required event info.
     new index = GetClientOfUserId(GetEventInt(event, "userid"));
+    PlayerJumpZM(index);
 
     // Fire post player_jump event.
     CreateTimer(0.0, EventPlayerJumpPost, index);
@@ -375,4 +390,5 @@ public Action:EventWeaponFire(Handle:event, const String:name[], bool:dontBroadc
 
     // Forward event to modules.
     NapalmOnWeaponFire(index, weapon);
+    DisparosZM(index, weapon);
 }
